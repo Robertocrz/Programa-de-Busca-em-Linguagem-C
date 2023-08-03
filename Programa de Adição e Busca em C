@@ -1,0 +1,176 @@
+#include <stdlib.h> 
+#include <stdio.h>
+#include <locale.h>
+#include <string.h>
+
+void inicializarTabela();        //inicializa a tabela
+void inserir();                  //função inserir
+void listarTabela();             //função listar
+int criarCodigoHash(int numeroRU);         //gera hash
+
+#define M 11 
+
+
+typedef struct                       //estrutura
+{
+    int ruAluno;
+    char nome[50];
+    char email[50];
+}dadosAluno;
+
+
+dadosAluno tabelaHash[M];
+
+
+dadosAluno lerdadosAluno()          //ler dados
+{
+    dadosAluno Aluno;
+    printf("Digite o RU do aluno:\n");
+    scanf_s("%d", &Aluno.ruAluno);
+    scanf_s("%*c");
+    printf("Digite o nome do Aluno:\n");
+    fgets(Aluno.nome, 50 - 1, stdin);
+    printf("Digite o e-mail do Aluno:\n");
+    fgets(Aluno.email, 50 - 1, stdin);
+    printf("\nDados inseridos com sucesso!\n");
+    printf("\nRU:\t%d\n", Aluno.ruAluno);
+    printf("Aluno:\t%s", Aluno.nome);
+    printf("E-mail\t%s", Aluno.email);
+    system("pause");
+    return Aluno;
+}
+
+
+dadosAluno* procurar(int numeroRU)            //função para procurar
+{
+    int indice = criarCodigoHash(numeroRU);
+    while (tabelaHash[indice].ruAluno != -1)
+    {
+        if (tabelaHash[indice].ruAluno == numeroRU)
+        {
+            return &tabelaHash[indice];
+        }
+        else
+        {
+            indice = criarCodigoHash(indice + 1);
+        }
+    }
+    return NULL;
+}
+
+
+int main()
+{
+
+    int opcao, numeroRU;
+    dadosAluno* Aluno;
+
+    inicializarTabela();            //inicializa a tabela
+
+    
+    do
+    {
+        system("cls");
+        printf("Sistema de Cadastro de Alunos\n\n");
+        printf("\tMenu Principal\n\n");
+        printf("(1) - Inserir novo aluno\n");
+        printf("(2) - Procurar aluno por RU\n");
+        printf("(3) - Listar todos os alunos\n");
+        printf("(4) - Sair\n\n");
+        printf("Digite a opcao:\n");
+        scanf_s("%d", &opcao);
+
+        switch (opcao)
+        {
+        case 1:
+            system("cls");
+            printf("Sistema de Cadastro de Alunos\n\n");
+            printf("     Menu de Insercao\n\n");
+            inserir(); 
+            break;
+        case 2:
+            system("cls");
+            printf("Sistema de Cadastro de Alunos\n\n");
+            printf("\tMenu de Busca\n\n");
+            printf("Digite o RU do aluno a ser buscado:\n");
+            scanf_s("%d", &numeroRU);
+            Aluno = procurar(numeroRU);
+            if (Aluno)
+            {
+                printf("\nDados encontrados!\n");
+                printf("\nRU:\t%d\n", Aluno->ruAluno);
+                printf("Nome:\t%s", Aluno->nome);
+                printf("E-mail:\t%s", Aluno->email);
+                printf("\n");
+                system("pause");
+            }
+            else
+            {
+                printf("\nRU nao encontrada!\n");
+                system("pause");
+            }
+            break;
+        case 3:
+            listarTabela();      //chama listagem
+            break;
+        case 4:
+            system("cls"); 
+            printf("Encerrando!\n\n");
+            break;
+        default:
+            printf("Opção inválida!\n");
+        }
+
+    } while (opcao != 4); 
+    return 0;
+}
+
+
+void inicializarTabela()                  //função espelhamento
+{
+    int i;
+    for (i = 0; i < M; i++)
+    {
+        tabelaHash[i].ruAluno = -1;
+    }
+}
+
+
+void inserir()                       //insere aluno na tabela
+{
+    dadosAluno alu = lerdadosAluno();
+    int indice = criarCodigoHash(alu.ruAluno);
+    while (tabelaHash[indice].ruAluno != -1)
+    {
+        indice = criarCodigoHash(indice + 1);
+    }
+    tabelaHash[indice] = alu;
+}
+
+
+void listarTabela()                    //insere função listar
+{
+    system("cls");
+    printf("Sistema de Cadastro de Alunos\n\n");
+    printf("\tMenu de Listagem\n\n");
+    int i;
+    for (i = 0; i < M; i++)
+    {
+        if (tabelaHash[i].ruAluno != -1)
+        {
+            printf("RU:\t%d\n", tabelaHash[i].ruAluno);
+            printf("Nome:\t%s", tabelaHash[i].nome);
+            printf("E-mail\t%s\n", tabelaHash[i].email);
+        }
+    }
+    printf("\n");
+    system("pause");
+}
+
+
+int criarCodigoHash(int numeroRU)            //gera codigo hash
+{
+    return numeroRU % M;
+}
+
+// encerra programa
